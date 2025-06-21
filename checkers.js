@@ -287,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Try to make a move
             if (isPlayerTurn && game.makeMove(fromRow, fromCol, row, col)) {
                 selectedPiece = null;
+                removePossibleMoveHighlights();
                 createBoardUI();
                 // Remove all visual selections
                 document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
@@ -304,11 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(prevSelectedSquare && prevSelectedSquare.firstChild) {
                         prevSelectedSquare.firstChild.classList.remove('selected');
                     }
+                    removePossibleMoveHighlights();
                     
                     selectedPiece = { row, col };
                     // Add new visual selection
                     if (square.firstChild) {
                         square.firstChild.classList.add('selected');
+                        highlightPossibleMoves(row, col);
                     }
                 } else {
                     // Invalid move, deselect
@@ -317,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         prevSelectedSquare.firstChild.classList.remove('selected');
                     }
                     selectedPiece = null;
+                    removePossibleMoveHighlights();
                 }
             }
         } else {
@@ -326,9 +330,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add visual selection
                 if (square.firstChild) {
                     square.firstChild.classList.add('selected');
+                    highlightPossibleMoves(row, col);
                 }
             }
         }
+    }
+
+    function highlightPossibleMoves(fromRow, fromCol) {
+        for (let toRow = 0; toRow < 8; toRow++) {
+            for (let toCol = 0; toCol < 8; toCol++) {
+                if (game.isValidMove(fromRow, fromCol, toRow, toCol)) {
+                    const square = boardElement.querySelector(`.square[data-row='${toRow}'][data-col='${toCol}']`);
+                    if (square) {
+                        square.classList.add('possible-move');
+                    }
+                }
+            }
+        }
+    }
+
+    function removePossibleMoveHighlights() {
+        document.querySelectorAll('.possible-move').forEach(el => el.classList.remove('possible-move'));
     }
 
     function updateGameInfo() {
